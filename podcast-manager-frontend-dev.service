@@ -1,0 +1,24 @@
+[Unit]
+Description=Podcast Manager Frontend (Vue/Vite Dev Server)
+After=network.target podcast-manager-backend.service
+Requires=podcast-manager-backend.service
+
+[Service]
+Type=simple
+User=podcastmgr
+Group=podcastmgr
+WorkingDirectory=/opt/podcast-manager/frontend
+Environment="NODE_ENV=development"
+ExecStart=/usr/bin/npm run dev
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=podcast-manager-frontend
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,37 @@
+# Core Web Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+jinja2==3.1.3
+
+# Database
+sqlalchemy==2.0.25
+alembic==1.13.1
+aiosqlite==0.19.0
+greenlet==3.0.3
+
+# Background Tasks
+apscheduler==3.10.4
+
+# HTTP & RSS
+httpx==0.26.0
+aiohttp==3.9.1
+feedparser==6.0.11
+aiofiles==23.2.1
+
+# Data Validation & Configuration
+pydantic==2.5.3
+pydantic-settings==2.1.0
+python-dotenv==1.0.0
+
+# Utilities
+loguru==0.7.2
+click==8.1.7
+python-slugify==8.0.1
+bleach==6.2.0  # HTML sanitization for show notes
+
+# OPML Support
+lxml==5.1.0
+
+# Plex Integration (optional)
+PlexAPI==4.15.0

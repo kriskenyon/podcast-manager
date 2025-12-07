@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+  <head>
+    <title>Test Podcast Subscriptions</title>
+    <dateCreated>Sat, 07 Dec 2024 12:00:00 GMT</dateCreated>
+  </head>
+  <body>
+    <outline text="News" title="News">
+      <outline type="rss"
+               text="The Daily"
+               title="The Daily"
+               xmlUrl="https://feeds.simplecast.com/54nAGcIl"
+               htmlUrl="https://www.nytimes.com/the-daily"
+               description="This is how the news should sound."/>
+    </outline>
+    <outline text="Technology" title="Technology">
+      <outline type="rss"
+               text="Reply All"
+               title="Reply All"
+               xmlUrl="https://feeds.gimletmedia.com/hearreplyall"
+               htmlUrl="https://gimletmedia.com/reply-all/"
+               description="A show about the internet."/>
+      <outline type="rss"
+               text="Radiolab"
+               title="Radiolab"
+               xmlUrl="https://feeds.wnyc.org/radiolab"
+               htmlUrl="https://www.wnycstudios.org/podcasts/radiolab"
+               description="A show about curiosity."/>
+    </outline>
+  </body>
+</opml>

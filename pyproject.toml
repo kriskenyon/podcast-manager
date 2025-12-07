@@ -1,0 +1,87 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "podcast-manager"
+version = "0.1.0"
+description = "A modern podcast manager for Plex Media Server"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    {name = "Podcast Manager Team"}
+]
+keywords = ["podcast", "plex", "media", "download", "rss"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: End Users/Desktop",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "python-multipart>=0.0.6",
+    "jinja2>=3.1.3",
+    "sqlalchemy>=2.0.25",
+    "alembic>=1.13.1",
+    "aiosqlite>=0.19.0",
+    "greenlet>=3.0.3",
+    "apscheduler>=3.10.4",
+    "httpx>=0.26.0",
+    "aiohttp>=3.9.1",
+    "feedparser>=6.0.11",
+    "aiofiles>=23.2.1",
+    "pydantic>=2.5.3",
+    "pydantic-settings>=2.1.0",
+    "python-dotenv>=1.0.0",
+    "loguru>=0.7.2",
+    "click>=8.1.7",
+    "python-slugify>=8.0.1",
+    "lxml>=5.1.0",
+]
+
+[project.optional-dependencies]
+plex = [
+    "PlexAPI>=4.15.0",
+]
+dev = [
+    "pytest>=7.4.4",
+    "pytest-asyncio>=0.23.3",
+    "pytest-cov>=4.1.0",
+    "black>=24.1.1",
+    "ruff>=0.1.14",
+    "mypy>=1.8.0",
+]
+
+[project.scripts]
+podcast-manager = "podcastmanager.main:cli"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 100
+target-version = ['py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
