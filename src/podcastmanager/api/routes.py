@@ -401,15 +401,24 @@ async def queue_download(
         return download
 
     except EpisodeNotFoundException as e:
+        logger.error(f"Episode not found: {episode_id} - {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e),
         )
 
     except InsufficientStorageException as e:
+        logger.warning(f"Insufficient storage for episode {episode_id}: {str(e)}")
         raise HTTPException(
             status_code=507,  # HTTP 507 Insufficient Storage
             detail=str(e),
+        )
+
+    except Exception as e:
+        logger.error(f"Unexpected error queuing download for episode {episode_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to queue download: {str(e)}",
         )
 
 
