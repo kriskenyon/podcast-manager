@@ -12,6 +12,10 @@ from sqlalchemy import select
 
 from podcastmanager.config import get_settings
 from podcastmanager.core.download_engine import DownloadEngine
+from podcastmanager.core.exceptions import (
+    EpisodeNotFoundException,
+    InsufficientStorageException,
+)
 from podcastmanager.core.podcast_manager import PodcastManager
 from podcastmanager.db.database import get_db_manager
 from podcastmanager.db.models import Download, Episode, Podcast
@@ -92,10 +96,22 @@ async def refresh_all_podcasts_job():
                                 )
 
                                 for episode in episodes_to_queue:
-                                    await download_engine.queue_episode_download(
-                                        episode.id
-                                    )
-                                    new_episodes_total += 1
+                                    try:
+                                        await download_engine.queue_episode_download(
+                                            episode.id
+                                        )
+                                        new_episodes_total += 1
+                                    except InsufficientStorageException as e:
+                                        logger.warning(
+                                            f"Skipping {episode.title}: {str(e)}"
+                                        )
+                                        # Continue to next episode, don't fail the whole job
+                                        continue
+                                    except EpisodeNotFoundException as e:
+                                        logger.error(
+                                            f"Episode not found: {str(e)}"
+                                        )
+                                        continue
 
                 except Exception as e:
                     logger.error(f"Error refreshing {podcast.title}: {e}")
