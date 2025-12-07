@@ -200,7 +200,21 @@ async function handleDownload(episodeId) {
     await downloads.queue(episodeId)
     alert('Episode queued for download!')
   } catch (err) {
-    alert('Failed to queue download')
+    // Extract error message from API response
+    let errorMessage = 'Failed to queue download'
+
+    if (err.response?.data?.detail) {
+      errorMessage = err.response.data.detail
+    } else if (err.response?.status === 507) {
+      errorMessage = 'Insufficient disk space. Please free up storage and try again.'
+    } else if (err.response?.status === 404) {
+      errorMessage = 'Episode not found.'
+    } else if (err.message) {
+      errorMessage = `Error: ${err.message}`
+    }
+
+    alert(errorMessage)
+    console.error('Download queue error:', err)
   }
 }
 

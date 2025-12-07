@@ -14,6 +14,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from podcastmanager.core.exceptions import (
+    EpisodeNotFoundException,
+    InsufficientStorageException,
+)
 from podcastmanager.db.models import Download, Episode, Podcast
 from podcastmanager.services.download_service import get_download_service
 from podcastmanager.services.file_manager import get_file_manager
@@ -54,7 +58,7 @@ class DownloadEngine:
         # Semaphore to limit concurrent downloads
         self.download_semaphore = asyncio.Semaphore(max_concurrent)
 
-    async def queue_episode_download(self, episode_id: int) -> Optional[Download]:
+    async def queue_episode_download(self, episode_id: int) -> Download:
         """
         Queue an episode for download.
 
@@ -64,7 +68,11 @@ class DownloadEngine:
             episode_id: ID of the episode to download
 
         Returns:
-            Download record or None if episode not found or already downloaded
+            Download record
+
+        Raises:
+            EpisodeNotFoundException: If episode not found
+            InsufficientStorageException: If not enough disk space
         """
         # Get the episode with podcast
         result = await self.session.execute(
@@ -76,7 +84,7 @@ class DownloadEngine:
 
         if not episode:
             logger.error(f"Episode {episode_id} not found")
-            return None
+            raise EpisodeNotFoundException(f"Episode with ID {episode_id} not found")
 
         # Check if already downloaded or queued
         result = await self.session.execute(
@@ -107,9 +115,20 @@ class DownloadEngine:
 
         # Check disk space
         if episode.file_size:
-            if not self.file_manager.has_enough_space(episode.file_size):
-                logger.error(f"Insufficient disk space for: {episode.title}")
-                return None
+            available_space = self.file_manager.get_available_space()
+            buffer_bytes = int(1.0 * 1024 * 1024 * 1024)  # 1GB buffer
+            required_with_buffer = episode.file_size + buffer_bytes
+
+            if available_space < required_with_buffer:
+                logger.error(
+                    f"Insufficient disk space for: {episode.title} "
+                    f"(required: {required_with_buffer / (1024*1024):.1f} MB, "
+                    f"available: {available_space / (1024*1024):.1f} MB)"
+                )
+                raise InsufficientStorageException(
+                    required_bytes=required_with_buffer,
+                    available_bytes=available_space,
+                )
 
         # Create download record
         download = Download(

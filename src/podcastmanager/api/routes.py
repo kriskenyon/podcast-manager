@@ -379,6 +379,7 @@ async def get_podcast_with_episodes(
     responses={
         201: {"description": "Download queued successfully"},
         404: {"model": ErrorResponse, "description": "Episode not found"},
+        507: {"model": ErrorResponse, "description": "Insufficient storage"},
     },
 )
 async def queue_download(
@@ -389,17 +390,27 @@ async def queue_download(
     Queue an episode for download.
     """
     from podcastmanager.core.download_engine import DownloadEngine
+    from podcastmanager.core.exceptions import (
+        EpisodeNotFoundException,
+        InsufficientStorageException,
+    )
 
-    engine = DownloadEngine(session)
-    download = await engine.queue_episode_download(episode_id)
+    try:
+        engine = DownloadEngine(session)
+        download = await engine.queue_episode_download(episode_id)
+        return download
 
-    if not download:
+    except EpisodeNotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Episode with ID {episode_id} not found or could not be queued",
+            detail=str(e),
         )
 
-    return download
+    except InsufficientStorageException as e:
+        raise HTTPException(
+            status_code=507,  # HTTP 507 Insufficient Storage
+            detail=str(e),
+        )
 
 
 @router.get(
